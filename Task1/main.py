@@ -29,7 +29,7 @@ def main():
     
     height = 5 #getGridSize("height")
     width = 5 #getGridSize("width")
-    mode = 1 #1 #getGameMode()
+    mode = 2 #1 #getGameMode()
     
     print("\nYou choose game mode {}, your grid size is {} x {}".format(mode, height, width))
     costGrid = np.random.randint(0, MAX_COST, (height, width))
