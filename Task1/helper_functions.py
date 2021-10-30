@@ -5,6 +5,10 @@ Created on Sun Oct 24 17:05:02 2021
 @author: priya
 """
 
+from Graph import *
+#from Graph import Graph
+
+
 #Helper function get user input for grid dimensions
 def getGridSize(side):
     while 1:
@@ -30,10 +34,6 @@ def getGameMode():
                 return mode
         except ValueError:
             print("{} is not a valid input".format(mode))
-            
-            
-def djikstraPath(mode, costgrid): 
-    return 1
 
 
 def getLegalNodes(currentX, currentY, maxX, maxY):
@@ -48,7 +48,7 @@ def getLegalNodes(currentX, currentY, maxX, maxY):
     #if currentY - 1 >= 0: nodes.append([currentY-1, currentX])
     
     return(nodes)           
-        
+
 
         
 def greedyPath(mode, costgrid, board):
@@ -113,10 +113,31 @@ def greedyPath(mode, costgrid, board):
         path.append(nextnode)
         currentX = nextnode[0]
         currentY = nextnode[1]
-        board.drawPath(path)
+        #board.drawPath(path)
         
         
         
+    return path
+
+
+
+           
+def dijkstrasPath(mode, costgrid, board):
+    maxX, maxY = costgrid.shape 
+    
+    #initialize graph 
+    myGraph = Graph(mode,costgrid) 
+    
+    #arguments 
+    source = (0,0)
+    destination = (maxX-1, maxY-1)
+    
+    #use class method for shortest path 
+    path = myGraph.shortestPath(source, destination)
+    #board.drawPath(path)
+    
+    
+    
     return path
     
 
@@ -124,6 +145,6 @@ def getShortestPath(algo, mode, costgrid, board):
     if algo == "greedy":
         path = greedyPath(mode, costgrid, board)
     else:
-        path = djikstraPath(mode, costgrid) 
+        path = dijkstrasPath(mode, costgrid, board) 
     return path
         
