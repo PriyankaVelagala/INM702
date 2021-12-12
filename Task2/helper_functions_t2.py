@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import random 
 from numpy.random import default_rng
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+
 
 
 # We will use matplotlib to plot figures
@@ -138,3 +140,14 @@ def plot_scatter_yresiduals(data):
     residuals_hist = plt.hist(data.residuals)
     plt.xlabel('Y-residual')
     plt.ylabel('Frequency')
+    
+    
+    
+#calculates VIF for each independent variable 
+def calculate_vif(X):
+    # Calculating VIF
+   vif = pd.DataFrame()
+   vif["variables"] = X.columns
+   vif["VIF"] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+   
+   return(vif)
