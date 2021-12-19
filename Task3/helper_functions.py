@@ -80,6 +80,6 @@ def CrossEntropyLoss(y_actual, y_pred):
     return np.mean(loss)
     
 # derivative for output layer with cross entropy + softmax activation 
-def softmaxCrossEntropyPrime(y_actual, y_pred ):
+def softmaxCrossEntropyPrime(y_pred, y_actual):
     return y_pred - y_actual.T
 
