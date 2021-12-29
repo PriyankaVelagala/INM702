@@ -6,7 +6,6 @@ Created on Sun Oct 24 17:05:02 2021
 """
 
 from Graph import *
-#from Graph import Graph
 
 
 #Helper function get user input for grid dimensions
@@ -55,7 +54,7 @@ def greedyPath(mode, costgrid, board):
     maxX, maxY = costgrid.shape
 
     pathFound = False
-    path = [[0,0]] 
+    path = [(0,0)] 
     #totalcost = 0 
     currentX = 0
     currentY = 0
@@ -76,8 +75,8 @@ def greedyPath(mode, costgrid, board):
                     break
             if inpath == False: toVisit.append([x,y])
             #if node not in path: toVisit.append(node)
-        print("Current Node: ", costgrid[currentX][currentY])
-        print("Nodes to visit: ",  [costgrid[x[0]][x[1]] for x in toVisit])
+        #print("Current Node: ", costgrid[currentX][currentY])
+        #print("Nodes to visit: ",  [costgrid[x[0]][x[1]] for x in toVisit])
         
         
         #if agent is backed into a corner 
@@ -94,21 +93,21 @@ def greedyPath(mode, costgrid, board):
             if x == maxX-1 and y == maxY-1: 
                 cost = costgrid[x][y]
                 pathFound = True 
-                nextnode = [x,y]
-                print("Nodes to visit: ",  [costgrid[x[0]][x[1]] for x in path])
+                nextnode = (x,y) 
+                #print("Nodes to visit: ",  [costgrid[x[0]][x[1]] for x in path])
                 totalcost = 0 
                 for node in path:
                     cost += costgrid[node[0]][node[1]]
-                print("total cost: ", cost)                    
+                #print("total cost: ", cost)                    
                 break
             if mode == 1: 
                 if costgrid[x][y] < cost:
                     cost = costgrid[x][y]
-                    nextnode = [x,y]
+                    nextnode = (x,y)
             elif mode == 2:
                 if abs(costgrid[x][y]-currentcost) < cost:
                     cost = abs(costgrid[x][y]-currentcost)
-                    nextnode = [x,y]
+                    nextnode = (x,y) 
         #totalcost += cost 
         path.append(nextnode)
         currentX = nextnode[0]
@@ -117,7 +116,7 @@ def greedyPath(mode, costgrid, board):
         
         
         
-    return path
+    return path, cost
 
 
 
@@ -133,18 +132,19 @@ def dijkstrasPath(mode, costgrid, board):
     destination = (maxX-1, maxY-1)
     
     #use class method for shortest path 
-    path = myGraph.shortestPath(source, destination)
+    path, cost = myGraph.shortestPath(source, destination)
     #board.drawPath(path)
     
     
     
-    return path
+    return path, cost
     
 
 def getShortestPath(algo, mode, costgrid, board):
     if algo == "greedy":
-        path = greedyPath(mode, costgrid, board)
+        path, cost = greedyPath(mode, costgrid, board)
     else:
-        path = dijkstrasPath(mode, costgrid, board) 
-    return path
+        path, cost = dijkstrasPath(mode, costgrid, board)
+        path.reverse()
+    return path, cost 
         

@@ -4,8 +4,9 @@ Created on Sat Oct 30 21:16:12 2021
 
 @author: priya
 """
-
+import heapq 
 #https://www.bogotobogo.com/python/python_Dijkstras_Shortest_Path_Algorithm.php
+#https://bradfieldcs.com/algos/graphs/dijkstras-algorithm/#:~:text=Dijkstra's%20algorithm%20uses%20a%20priority,of%20vertices%20sorted%20by%20distance.
 
 class Edge:
     def __init__(self, src, dst, cost):
@@ -17,7 +18,7 @@ class Vertex:
     def __init__(self, id):
         self.id = id
         self.cost = float('inf')
-        self.visited = False 
+        #self.visited = False 
         self.previous = None     
         
     def getId(self):
@@ -25,21 +26,21 @@ class Vertex:
     
     def setCost(self, val):
         self.cost = val 
-        print("Updated cost of vertex: {} to {}".format(self.id, val))
+        #print("Updated cost of vertex: {} to {}".format(self.id, val))
     
     def getCost(self):
         return self.cost
         
     def setVisited(self, val):
         self.visited = val 
-        print("Updated visited of vertex: {} to {}".format(self.id, val))
+        #print("Updated visited of vertex: {} to {}".format(self.id, val))
         
     def getVisited(self):
         return self.visited
     
     def setPrevious(self, val):
         self.previous = val
-        print("Updated prev of vertex: {} to {}".format(self.id, val))
+        #print("Updated prev of vertex: {} to {}".format(self.id, val))
         
     def getPrevious(self):
         return self.previous
@@ -56,7 +57,7 @@ class Graph:
         #[Edge(e) for e in edges]
         
 
-     
+    #given a vertex, returns a list of all connected vertices
     def getConnectedVertices(self, currentX, currentY):
         maxX = self.maxX
         maxY = self.maxY
@@ -71,7 +72,7 @@ class Graph:
         if currentY - 1 >= 0: vertices.append((currentX, currentY-1))
         return(vertices)  
         
-        
+    #builds a list of all edges in a graph     
     def buildEdges(self, costgrid):
         edges = [] 
         maxX, maxY = costgrid.shape 
@@ -91,19 +92,21 @@ class Graph:
             
         return edges
         
-        
+    #gets vertex from graph when passed an id     
     def getVertex(self, id):
         for v in self.vertices:
             if v.id == id:
                 return v
         return None 
     
+    #returns cost of edge between two nodes if one exists
     def getEdgeCost(self, src, dst):
         for e in self.edges:
             if e.src == src and e.dst == dst:
                 return e.cost
         return None 
     
+    #traverses back from destination to source to find path 
     def getPath(self, source, destination):
         path = [destination]
         current = destination 
@@ -113,78 +116,59 @@ class Graph:
             path.append(prev)
             
             if prev == source:
-                print("Path: ", path)
+                #print("Path: ", path)
                 return path 
             
             current = prev 
             
             
-            
-        
-        
-        
     def shortestPath(self, source, destination):
         
         #set source cost to 0 
         self.getVertex(source).setCost(0)
-        current = source 
+
+        #initialize queue
+        pQueue = [(0, source)]
         
-        unvisited = [(x,y) for x in range(0,self.maxX) for y in range(0,self.maxY)]
-        
-        
-        i = 0 
-        
-        while (unvisited):
+                
+        while len(pQueue) > 0: #(unvisited):
             
-            cost = self.getVertex(current).getCost()
+            #get vertex with least cost  
+            currentCost, currentNode = heapq.heappop(pQueue)
+                        
+            #check if the distance to node is already smaller than current 
+            #if so, do nothing 
+            if currentCost > self.getVertex(currentNode).getCost():
+                continue 
             
-            self.getVertex(current).setVisited(True)
             
             #get connected vertices for current vertex
-            adjVertices = self.getConnectedVertices(current[0], current[1])
-            print(adjVertices)
+            adjVertices = self.getConnectedVertices(currentNode[0], currentNode[1])
+            #print(adjVertices)
+            
             
             for v in adjVertices:
-                #check if vertex visited
-                if self.getVertex(v).getVisited():
-                    continue 
+                #calculate cost to vertex 
+                newCost = currentCost + self.getEdgeCost(currentNode, v)
+               # print("Current node: {} with cost: {}, to node: {} with new cost: {}".format(current, cost, v, newCost))
                 
-                #if not, calculate cost to vertex 
-                newCost = cost + self.getEdgeCost(current, v)
-                print("Current node: {} with cost: {}, to node: {} with new cost: {}".format(current, cost, v, newCost))
-                
-                #update adjascent vertices cost if lower than edge cost 
+                #update adjascent vertices cost if lower than current cost 
+                #update previous
+                #add to queue
                 if newCost < self.getVertex(v).getCost():
                     self.getVertex(v).setCost(newCost)
-                    self.getVertex(v).setPrevious(current)
-                   
+                    self.getVertex(v).setPrevious(currentNode)
+                    heapq.heappush(pQueue, (newCost, v))
                 
             
-            #relax current edge 
-            unvisited.remove(current)
             
-            #find next vertex 
-            nextVertex = None 
-            minCost = float('inf')
-            for v in self.vertices:
-                if self.getVertex(v.getId()).getCost() < minCost and self.getVertex(v.getId()).getVisited() == False:
-                    nextVertex = v.getId()
-                    minCost = self.getVertex(v.getId()).getCost()
-            print("Next vertex to visit: {}".format(nextVertex))
-                
-            current = nextVertex
-            
-            print("Remaining nodes to visit: ", len(unvisited))
-            
-          
+        #get path, cost   
         path = self.getPath(source, destination)
+        cost = self.getVertex(destination).getCost()
         
-        return path 
-                
-                
+        return path, cost 
             
-            
-   
+
 
 
 
