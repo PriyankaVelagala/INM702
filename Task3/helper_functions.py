@@ -5,8 +5,7 @@ Created on Sun Dec 12 23:39:22 2021
 @author: priya
 """
 
-#https://towardsdatascience.com/lets-code-a-neural-network-in-plain-numpy-ae7e74410795
-#https://github.com/Sentdex/NNfSiX/blob/master/Python/p006-Softmax-Activation.py
+
 
 
 import math
@@ -83,3 +82,17 @@ def CrossEntropyLoss(y_actual, y_pred):
 def softmaxCrossEntropyPrime(y_pred, y_actual):
     return y_pred - y_actual.T
 
+##############################
+
+def makeBatches(X, Y, batch_size):
+    x_b = []
+    y_b = []
+    
+    
+    for i in range(0, X.shape[0], batch_size):
+        x_b.append(X[i:i + batch_size])
+        y_b.append(Y[i:i + batch_size])
+    
+    print("num of batches: ", len(x_b))
+    
+    return x_b, y_b

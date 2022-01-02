@@ -29,17 +29,20 @@ def main():
     
     print("X train: ", X_train.shape, "Y train: ",  y_train.shape,  "X test: ", X_test.shape,  "Y_test: ", y_test.shape)
     
-    myNN = NeuralNetwork()
+    num_features = 784 
+    num_classes = 10
+    num_neurons = [500, 300]
+    activation_fxn = ['sigmoid', 'sigmoid']
+    learning_rate = 0.1
+    epochs = 10
+    batch_size = -1
+    
+    myNN = NeuralNetwork(num_features, num_classes, num_neurons, activation_fxn, learning_rate, epochs, batch_size)
     myNN.train(X_train, y_train)
+    t_accuracy = myNN.predict(X_test, y_test)
+    print("Test: ", t_accuracy)
+
     
     
-    #t = [[ 0.41287266, -0.73082379,  0.78215209],
-    #   [ 0.76983443,  0.46052273,  0.4283139 ],
-    #   [-0.18905708,  0.57197116,  0.53226954]]
-    #t = np.array(t)
-    #print(d_reLU(t))
-
-
-
 if __name__ == "__main__":
     main()

@@ -10,9 +10,7 @@ from helper_functions import *
 import math 
 
 class NeuralNetwork:
-    
-    def __init__(self, num_features = 784,  num_classes = 10,  num_neurons = [300, 200, 50],
-                 activation_fxn = ['sigmoid', 'sigmoid', 'ReLU'],  learning_rate = 0.1, epochs = 50):
+    def __init__(self, num_features,  num_classes , num_neurons , activation_fxn , learning_rate, epochs , batch_size = -1):
         self.num_features = num_features
         self.num_classes = num_classes
         self.num_neurons = num_neurons
@@ -28,27 +26,26 @@ class NeuralNetwork:
         self.activation_fxn.append('softmax')
     
         
-        
         self.num_layers = len(activation_fxn)
         
         self.layers = []
         
         self.epochs = epochs
         self.num_samples = -1 
+        
+        self.batch_size = batch_size
 
         self.initializeLayers()
         self.printNetworkSetup()
         
         
     def initializeLayers(self):
-        #first layer 
-        #self.layers.append(Layer(self.num_features, self.num_neurons[0], self.activation_fxn[0])) 
-        #hidden layers - 2 to n
         for i in range(0, self.num_layers):
             self.layers.append(Layer(self.num_neurons[i], self.num_neurons[i+1], self.activation_fxn[i]))
                 
         
     def printNetworkSetup(self):
+        print("##############################################")
         print("Number of features:", self.num_features,
               "\nNumber of classes:", self.num_classes,
               "\nNumber of layers:", self.num_layers,
@@ -58,8 +55,9 @@ class NeuralNetwork:
             print("Layer {} Number of Neurons: {}, Activation Function: {}".format(i, layer.num_neurons, layer.activation_fxn))
             print("Weight: {}, Bias: {}".format(layer.w.shape, layer.b.shape))
             i += 1
+        print("##############################################")
         
-    #forwards pass 
+    #forwards pass for network 
     def forwardPass(self, X):
         layer_input = X.T
         
@@ -67,37 +65,26 @@ class NeuralNetwork:
             layer_output = self.layers[i].forward(layer_input)
             layer_input = layer_output
             
-            #print("Layer ", i+1, "Activation fxn: ", layer.activation_fxn)
-            #print(" Z shape: {}, A shape: {}".format(layer.z.shape, layer.A.shape))
+
                   
         return layer_output
     
-    #backward pass 
+    #backward pass for network  
     def backwardPass(self, X, y):
         
         #set up for the output layer 
         output_layer = self.layers[-1]
-        #print("Output Layer A  shape: {}".format(output_layer.A.shape))
 
         output_layer.dZ = softmaxCrossEntropyPrime(output_layer.A, y)
-        #print("Output Layer dZ shape: {}".format(output_layer.dZ.shape))
-        #print("Output Layer -1 A  shape: {}".format(self.layers[-2].A.shape))
+
 
         output_layer.dw = np.dot(output_layer.dZ, self.layers[-2].A.T)*(1/self.num_samples)
         output_layer.db = np.sum(output_layer.dZ, axis = 1, keepdims = True)*(1/self.num_samples)
         
-        #print ("Output Layer dZ shape: {}, dw shape: {}, db shape: {} ".format(output_layer.dZ.shape, output_layer.dw.shape, output_layer.db.shape))
-
         dA = np.dot(output_layer.w.T, output_layer.dZ)
         
-        #print("dA shape: {}".format(dA.shape))
-        
-        #print("list range: ", list(range(self.num_layers-2, -1, -1)))
-
+        #second to last layer to first layer
         for i in range(self.num_layers-2, -1, -1):
-            #print(i)
-            #layer = self.layers[i-1]
-            #print("Layer {} Number of Neurons: {}, Activation Function: {}".format(i, layer.num_neurons, layer.activation_fxn))
 
             if i == 0: 
                 dA_out = self.layers[i].backward(dA, X.T, self.num_samples)
@@ -106,44 +93,73 @@ class NeuralNetwork:
                 
             layer = self.layers[i]
 
-            #print ("Layer {} dZ shape: {}, dw shape: {}, db shape: {}, dA shape: {} ".format(i+1, layer.dZ.shape, layer.dw.shape, layer.db.shape, layer.dA.shape))
 
             dA = dA_out
         
         
         
         
-        
     def train(self, X, y):
-        self.num_samples = X.shape[0]
         
-        #for X iterations
+        #if training in batches 
+        if self.batch_size == -1:  
+            self.num_samples = X.shape[0]
+        else:
+            self.num_samples = self.batch_size
+            x_b, y_b = makeBatches(X, y, self.batch_size)
+            
+            
+
         for i in range(0,self.epochs):
-            print(i)
-            # forward pass 
-            y_pred = self.forwardPass(X)
-            
-            #print("Y_pred shape: ", y_pred.shape)
-            #print("y-shape: ", y.shape)
-            
-            #calculate loss
-            loss = CrossEntropyLoss(y, y_pred.T)
-
-            #backward pass 
-            self.backwardPass(X, y)
-        
-            #update weights 
-            for j in range(0, self.num_layers):
-                self.layers[j].w = self.layers[j].w - self.learning_rate*self.layers[j].dw
-                self.layers[j].b = self.layers[j].b - self.learning_rate*self.layers[j].db
-                
-            if i % 5 == 0:  
-                accuracy =  self.predict(X, y)
-                print('loss:', loss, 'accuracy: ', accuracy)
-            
-
-            
+            #print("epoch: ", i)
     
+            if self.batch_size == -1:
+                # forward pass 
+                y_pred = self.forwardPass(X)
+                
+
+                #calculate loss
+                loss = CrossEntropyLoss(y, y_pred.T)
+    
+                #backward pass 
+                self.backwardPass(X, y)
+            
+                #update weights 
+                for j in range(0, self.num_layers):
+                    self.layers[j].w = self.layers[j].w - self.learning_rate*self.layers[j].dw
+                    self.layers[j].b = self.layers[j].b - self.learning_rate*self.layers[j].db
+                    
+                accuracy =  self.predict(X, y)
+                print('epoch ', i,  'loss: ', loss, 'accuracy: ', accuracy)
+                    
+            else:
+                ###update weights for every batch 
+                for k in range(0, len(x_b)):
+                    # forward pass 
+                    y_pred = self.forwardPass(x_b[k])
+                    
+                    
+                    #calculate loss
+                    loss = CrossEntropyLoss(y_b[k], y_pred.T)
+        
+                    #backward pass 
+                    self.backwardPass(x_b[k], y_b[k])
+                
+                    #update weights 
+                    for j in range(0, self.num_layers):
+                        self.layers[j].w = self.layers[j].w - self.learning_rate*self.layers[j].dw
+                        self.layers[j].b = self.layers[j].b - self.learning_rate*self.layers[j].db
+                        
+                    if k % 100 == 0:  
+                        accuracy =  self.predict(x_b[k], y_b[k])
+                        print('epoch ', i, 'batch ', k, 'loss: ', loss, 'accuracy: ', accuracy)
+                       
+        accuracy =  self.predict(X, y)
+        print("Train accuracy: ",  accuracy, "%")
+            
+
+            
+    #predicts output and returns accuracy 
     def predict(self, X, Y):
         y_pred = np.argmax(self.forwardPass(X), axis =0 )
         y_actual = np.argmax(Y, axis = 1 )
@@ -151,8 +167,18 @@ class NeuralNetwork:
         #print(y_actual[0:5])
         accuracy = (y_pred==y_actual).mean()
         return round(accuracy*100,2) 
-        
-
+    
+    #predicts output and displays actual vs predicted 
+    def predictwithOutput(self, X, Y):
+        y_pred = np.argmax(self.forwardPass(X), axis =0 )
+        y_actual = np.argmax(Y, axis = 1 )
+        print("total: ", y_pred.shape[0])
+        correct = (y_pred==y_actual).sum()
+        print(y_pred[0:30])
+        print(y_actual[0:30])
+        print("correct:", correct)
+        accuracy = (y_pred==y_actual).mean()
+        return round(accuracy*100,2) 
         
             
                
@@ -178,8 +204,7 @@ class Layer:
         self.dw =None
         self.db = None 
 
-        
-        
+    #forward pass for a single layer     
     def forward(self, X):
         self.z = np.dot(self.w, X) + self.b
         
@@ -192,6 +217,7 @@ class Layer:
             
         return self.A
             
+    #backward pass for a single layer 
     def backward(self, dA, X, num_samples):
         
         if self.activation_fxn == 'ReLU':
