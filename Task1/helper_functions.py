@@ -18,6 +18,29 @@ def getGridSize(side):
             print("{} is not a valid input, please enter an integer".format(size))
         else:
             return size
+        
+#choose algorithm
+def getAlgo():
+    print("\nChoose Algorithm: \n [1] Dijkstra's Algorthm \n [2] Heuristic Algorithm")
+    while 1:
+        mode = input("Choose algorithm (1 or 2): ")
+        try:
+            mode = int(mode)
+            if mode not in (1,2):
+                print("Algorithm {} does not exist".format(mode))
+                return getGameMode() 
+            else:
+                if mode == 1: 
+                    algoName = "Dijkstra's algorithm"
+                    f_algoName = "dijkstras"
+                else:
+                    algoName = "Heuristic algorithm"
+                    f_algoName = "greedy"
+
+                return mode, algoName, f_algoName
+        except ValueError:
+            print("{} is not a valid input".format(mode))
+
 
 #Helper function to get user input for game mode 
 def getGameMode():
@@ -37,7 +60,7 @@ def getGameMode():
 
 def getLegalNodes(currentX, currentY, maxX, maxY):
     nodes = []
-    #check bottom?
+    #check bottom
     if currentX + 1 < maxX: nodes.append([currentY, currentX+1])
     #check  up?
     #if currentX - 1 >= 0: nodes.append([currentY, currentX-1])

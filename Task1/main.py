@@ -28,20 +28,22 @@ MAX_COST = 100
 def main():
     print("Hello!")
     
+    #get user input 
     height = getGridSize("height")
     width = getGridSize("width")
     mode = getGameMode()
+    algo, algoName, f_algoName = getAlgo()
     
+  
     print("\nYou choose game mode {}, your grid size is {} x {}".format(mode, height, width))
-    costGrid = np.random.randint(0, MAX_COST, (height, width))
+    print("Running {}...".format(algoName))
     
+    
+    costGrid = np.random.randint(0, MAX_COST, (height, width)) 
     myBoard = Grid(height, width, costGrid)
     myBoard.drawGrid()
-    #print(costGrid.shape)
-    #path, cost = getShortestPath("greedy", mode, costGrid, myBoard)
-    path, cost = getShortestPath("dijkstras", mode, costGrid, myBoard)
-    #print(len(path))
-    print(cost)
+  
+    path, cost = getShortestPath(f_algoName, mode, costGrid, myBoard)
     myBoard.drawPath(path)
      
    

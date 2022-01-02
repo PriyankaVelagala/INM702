@@ -2,8 +2,6 @@ import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np 
 
-#https://stackoverflow.com/questions/19586828/drawing-grid-pattern-in-matplotlib
-#https://stackoverflow.com/questions/20998083/show-the-values-in-the-grid-using-matplotlib
     
 class Grid():
     def __init__(self, height, width, costgrid):

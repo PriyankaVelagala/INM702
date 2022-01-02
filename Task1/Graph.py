@@ -5,8 +5,6 @@ Created on Sat Oct 30 21:16:12 2021
 @author: priya
 """
 import heapq 
-#https://www.bogotobogo.com/python/python_Dijkstras_Shortest_Path_Algorithm.php
-#https://bradfieldcs.com/algos/graphs/dijkstras-algorithm/#:~:text=Dijkstra's%20algorithm%20uses%20a%20priority,of%20vertices%20sorted%20by%20distance.
 
 class Edge:
     def __init__(self, src, dst, cost):
